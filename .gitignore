@@ -3,6 +3,7 @@
 .ionide/
 .history/
 .idea/
+.qt_for_python/
 
 ### Project ###
 build/
@@ -15,3 +16,6 @@ Makefile*
 *.o
 moc_*.cpp
 ui_*.h
+.qmake.stash
+*.qm
+*.autosave
