@@ -6,3 +6,13 @@
 
 + Qt 5.15.2 (MinGW 8.1.0 64-bit)
 + Windows 10 21H2 x64
+
+### Build and run
+
+```bash
+mkdir build
+cd build
+qmake ..
+make
+./release/GlobalHotkeyManager.exe
+```

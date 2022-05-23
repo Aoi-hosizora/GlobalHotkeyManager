@@ -7,4 +7,11 @@
 ### Project ###
 build/
 x64/
+*.user
+*.Debug
+*.Release
+Makefile*
 *.exe
+*.o
+moc_*.cpp
+ui_*.h
