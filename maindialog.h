@@ -3,15 +3,12 @@
 
 #include <Windows.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QStringListModel>
-#include <QtCore/QTimer>
 #include <QtGui/QCloseEvent>
 #include <QtGui/QKeyEvent>
 #include <QtWidgets/QDialog>
-#include <QtWidgets/QListView>
-#include <QtWidgets/QMessageBox>
 #include <vector>
+
+#include "hotkey_item.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -32,15 +29,18 @@ class MainDialog : public QDialog {
     void onBtnHideClicked();
     void onBtnExitClicked();
     void onLstHotkeysCurrentRowChanged(int);
+    void onLstHotkeysDoubleClicked();
 
    protected:
     bool nativeEvent(const QByteArray &, void *, long *) override;
 
    private:
     void setupEvents();
+    void loadData();
 
    private:
     Ui::MainDialog *ui;
+    std::vector<HotkeyItem> hotkey_items;
     const int SHOWME_HOTKEY = 0;
     bool sure_to_exit = false;
 };

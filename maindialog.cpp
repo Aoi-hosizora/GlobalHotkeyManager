@@ -1,5 +1,8 @@
 #include "maindialog.h"
 
+#include <QtCore/QDebug>
+#include <QtWidgets/QMessageBox>
+
 #include "ui_maindialog.h"
 #include "utils.hpp"
 
@@ -8,6 +11,7 @@ MainDialog::MainDialog(QWidget *parent) : QDialog(parent), ui(new Ui::MainDialog
     ui->setupUi(this);
     setWindowFlags(Qt::WindowCloseButtonHint | Qt::WindowStaysOnTopHint);
     setupEvents();
+    loadData();
 }
 
 MainDialog::~MainDialog() {
@@ -17,10 +21,8 @@ MainDialog::~MainDialog() {
 void MainDialog::setupEvents() {
     connect(ui->btnHide, SIGNAL(clicked()), this, SLOT(onBtnHideClicked()));
     connect(ui->btnExit, SIGNAL(clicked()), this, SLOT(onBtnExitClicked()));
-    for (int i = 0; i < 20; i++) {
-        ui->lstHotkeys->addItem("item_" + QString::number(i));
-    }
     connect(ui->lstHotkeys, SIGNAL(currentRowChanged(int)), this, SLOT(onLstHotkeysCurrentRowChanged(int)));
+    connect(ui->lstHotkeys, SIGNAL(doubleClicked(const QModelIndex &)), this, SLOT(onLstHotkeysDoubleClicked()));
 
     if (!RegisterHotKey((HWND) winId(), SHOWME_HOTKEY, MOD_CONTROL | MOD_SHIFT | MOD_ALT, VK_F12)) {
         QMessageBox::critical(this, tr("Error"), tr("RegisterHotKey failed"));
@@ -29,8 +31,21 @@ void MainDialog::setupEvents() {
     }
 }
 
+void MainDialog::loadData() {
+    qDebug() << HotkeyItem::readConfigsFromRegistry(&hotkey_items);
+    for (auto item : hotkey_items) {
+        ui->lstHotkeys->addItem(item.toString());
+    }
+}
+
 void MainDialog::onLstHotkeysCurrentRowChanged(int index) {
     qDebug() << ui->lstHotkeys->item(index)->data(Qt::DisplayRole).toString();
+}
+
+void MainDialog::onLstHotkeysDoubleClicked() {
+    int index = ui->lstHotkeys->currentRow();
+    auto item = hotkey_items.at(index);
+    QMessageBox::information(this, "information", QString("%0\n%1\n%2\n%3\n%4\n%5").arg(item.title(), item.hotkey().toString(), item.op(), item.file(), item.param(), item.dir()));
 }
 
 void MainDialog::closeEvent(QCloseEvent *e) {

@@ -6,10 +6,12 @@ CONFIG += debug console
 
 SOURCES += \
     main.cpp \
-    maindialog.cpp
+    maindialog.cpp \
+    hotkey_item.cpp
 
 HEADERS += \
     maindialog.h \
+    hotkey_item.h \
     utils.hpp
 
 FORMS += \
