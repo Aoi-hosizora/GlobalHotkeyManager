@@ -4,18 +4,18 @@
 .history/
 .idea/
 .qt_for_python/
+*.autosave
 
 ### Project ###
 build/
 x64/
 *.user
-*.Debug
-*.Release
 Makefile*
+.qmake.stash
 *.exe
-*.o
+*.[ao]
+
+### Qt related ###
 moc_*.cpp
 ui_*.h
-.qmake.stash
 *.qm
-*.autosave

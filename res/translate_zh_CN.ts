@@ -5,24 +5,46 @@
     <name>MainDialog</name>
     <message>
         <location filename="../maindialog.ui" line="14"/>
-        <source>MainDialog</source>
-        <translation type="unfinished">MainDialog</translation>
+        <location filename="../maindialog.cpp" line="38"/>
+        <source>Global Hotkey Manager</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../maindialog.ui" line="26"/>
-        <source>Test</source>
-        <translation type="unfinished">测试</translation>
+        <location filename="../maindialog.ui" line="20"/>
+        <source>Press Ctrl+Shift+Alt+F12 to open this window.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../maindialog.ui" line="39"/>
-        <location filename="../maindialog.cpp" line="15"/>
-        <source>hello world</source>
-        <translation type="unfinished">你好，世界</translation>
+        <location filename="../maindialog.ui" line="58"/>
+        <location filename="../maindialog.cpp" line="42"/>
+        <source>Hide</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../maindialog.cpp" line="15"/>
-        <source>GlobalHotkeyManager</source>
-        <translation type="unfinished">GlobalHotkeyManager</translation>
+        <location filename="../maindialog.ui" line="65"/>
+        <location filename="../maindialog.cpp" line="41"/>
+        <source>Exit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../maindialog.cpp" line="22"/>
+        <source>Error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../maindialog.cpp" line="22"/>
+        <source>RegisterHotKey failed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../maindialog.cpp" line="39"/>
+        <source>Sure to exit Global Hotkey Manager? Or just hide this window?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../maindialog.cpp" line="40"/>
+        <source>If you choose to exit, all hotkeys that have been registered will be unregistered and cannot to invoked.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 </TS>

@@ -9,7 +9,8 @@ SOURCES += \
     maindialog.cpp
 
 HEADERS += \
-    maindialog.h
+    maindialog.h \
+    utils.hpp
 
 FORMS += \
     maindialog.ui
