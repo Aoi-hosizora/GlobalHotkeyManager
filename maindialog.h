@@ -38,8 +38,9 @@ class MainDialog : public QDialog {
     bool nativeEvent(const QByteArray &, void *, long *) override;
 
    private:
-    void setupEvents();
-    void loadData();
+    void bindEvents();
+    void readConfig();
+    bool loadItems(bool = true);
     void invokeItem(const HotkeyItem *);
     void close(bool);
 

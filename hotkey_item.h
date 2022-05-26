@@ -23,7 +23,9 @@ class HotkeyItem {
     int style() const { return style_; }
 
     QString toString() const;
-    static bool readConfigsFromRegistry(std::vector<HotkeyItem> *);
+    friend bool operator==(const HotkeyItem &, const HotkeyItem &);
+    friend bool operator!=(const HotkeyItem &, const HotkeyItem &);
+    static bool readItemsFromRegistry(std::vector<HotkeyItem> *);
 
    private:
     QString title_ = "";
@@ -49,6 +51,7 @@ class ManagerConfig {
     int keyId() const { return keyId_; }
     void setKeyId(int keyId) { keyId_ = keyId; }
 
+    static QString registryPath(bool = true);
     static bool readConfigFromRegistry(ManagerConfig *);
 
    private:

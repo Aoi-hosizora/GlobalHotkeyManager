@@ -24,8 +24,24 @@ QString HotkeyItem::toString() const {
     return QString("\"%0\" (%1)\n%2").arg(title_, hotkey_.toString(), l.join(" "));
 }
 
-bool HotkeyItem::readConfigsFromRegistry(std::vector<HotkeyItem> *out) {
-    std::wstring root_path = L"SOFTWARE\\AoiHosizora\\GlobalHotkeyManager";
+bool operator==(const HotkeyItem &lhs, const HotkeyItem &rhs) {
+    return lhs.title() == rhs.title() && lhs.hotkey() == rhs.hotkey() &&
+           lhs.file() == rhs.file() && lhs.op() == rhs.op() && lhs.param() == rhs.param() && lhs.dir() == rhs.dir() && lhs.style() == rhs.style();
+}
+
+bool operator!=(const HotkeyItem &lhs, const HotkeyItem &rhs) {
+    return !(lhs == rhs);
+}
+
+QString ManagerConfig::registryPath(bool full) {
+    if (full) {
+        return "HKEY_CURRENT_USER\\SOFTWARE\\AoiHosizora\\GlobalHotkeyManager";
+    }
+    return "SOFTWARE\\AoiHosizora\\GlobalHotkeyManager";
+}
+
+bool HotkeyItem::readItemsFromRegistry(std::vector<HotkeyItem> *out) {
+    std::wstring root_path = ManagerConfig::registryPath(false).toStdWString();
     std::vector<std::wstring> key_names;
     if (!utils::listRegKeyNames(root_path, &key_names)) {
         return false;
@@ -39,7 +55,7 @@ bool HotkeyItem::readConfigsFromRegistry(std::vector<HotkeyItem> *out) {
             continue;
         }
         auto title = QString::fromStdWString(utils::readRegSz(key, L"", L"")).trimmed();
-        auto hotkey = QString::fromStdWString(utils::readRegSz(key, L"Hotkey", L"")).trimmed();
+        auto hotkey = QString::fromStdWString(utils::readRegSz(key, L"Hotkey", L"")).trimmed().replace("Win", "Meta");
         auto op = QString::fromStdWString(utils::readRegSz(key, L"Operation", L"open")).trimmed();
         auto file = QString::fromStdWString(utils::readRegSz(key, L"File", L"")).trimmed().replace("\"", "");
         auto param = QString::fromStdWString(utils::readRegSz(key, L"Parameter", L"")).trimmed();
@@ -56,12 +72,12 @@ bool HotkeyItem::readConfigsFromRegistry(std::vector<HotkeyItem> *out) {
 }
 
 bool ManagerConfig::readConfigFromRegistry(ManagerConfig *out) {
-    std::wstring key_path = L"SOFTWARE\\AoiHosizora\\GlobalHotkeyManager";
+    std::wstring key_path = ManagerConfig::registryPath(false).toStdWString();
     HKEY key;
     if (!utils::openRegKeyForValues(key_path, &key)) {
         return false;
     }
-    auto hotkey = QString::fromStdWString(utils::readRegSz(key, L"Hotkey", L"Ctrl+Shift+Alt+F12")).trimmed();
+    auto hotkey = QString::fromStdWString(utils::readRegSz(key, L"Hotkey", L"Ctrl+Shift+Alt+F12")).trimmed().replace("Win", "Meta");
     auto lang = QString::fromStdWString(utils::readRegSz(key, L"Lang", L"")).trimmed();
     auto hotkey_ = utils::ensureQKeySequence(QKeySequence::fromString(hotkey), Qt::ControlModifier + Qt::ShiftModifier + Qt::AltModifier + Qt::Key_F12);
     *out = ManagerConfig(hotkey_, lang);
