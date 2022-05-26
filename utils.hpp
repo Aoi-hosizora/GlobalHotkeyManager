@@ -1,55 +1,79 @@
-#include <QtCore/QDebug>
-#include <QtGui/QFont>
+#ifndef UTILS_HPP
+#define UTILS_HPP
+
 #include <QtGui/QKeySequence>
-#include <QtWidgets/QApplication>
+#include <QtGui/qwindowdefs.h>
 #include <algorithm>
 #include <qt_windows.h>
 #include <string>
 
-#ifndef UTILS_HPP
-#define UTILS_HPP
+namespace utils {
 
-inline QFont getSystemMessageFont() {
-    return QApplication::font("QMessageBox");
-    // NONCLIENTMETRICS ncm;
-    // ncm.cbSize = sizeof(NONCLIENTMETRICS);
-    // SystemParametersInfo(SPI_GETNONCLIENTMETRICS, 0, &ncm, 0);
-    // QFont f = QApplication::font();
-    // f.setFamily(QString::fromStdWString((std::wstring) ncm.lfMessageFont.lfFaceName));
-    // return f;
-}
+int generateHotkeyId(UINT, UINT);
+QKeySequence ensureQKeySequence(QKeySequence, QKeySequence = 0);
+bool registerHotkey(WId, QKeySequence, int *);
+bool unregisterHotkey(WId, QKeySequence);
 
-inline int generateHotkeyId(UINT fsModifiers, UINT vk) {
+bool qKeySequenceToNative(QKeySequence, UINT *, UINT *);
+UINT qKeyboardModifiersToNative(Qt::KeyboardModifiers);
+UINT qKeyCodeToNative(Qt::Key);
+
+bool listRegKeyNames(std::wstring, std::vector<std::wstring> *);
+bool openRegKeyForValues(std::wstring, HKEY *);
+std::wstring readRegSz(HKEY, std::wstring, std::wstring);
+
+int parseStyleFromString(std::wstring);
+std::wstring formatStyleToString(int);
+
+}  // namespace utils
+
+inline int utils::generateHotkeyId(UINT fsModifiers, UINT vk) {
     return vk << 4 | fsModifiers;
 }
 
-bool qKeySequenceToNative(const QKeySequence &, UINT *, UINT *);
-inline int generateHotkeyId(const QKeySequence &shortcut) {
-    UINT fsModifiers, vk;
-    qDebug() << qKeySequenceToNative(shortcut, &fsModifiers, &vk);
-    return generateHotkeyId(fsModifiers, vk);
+inline QKeySequence utils::ensureQKeySequence(QKeySequence kseq, QKeySequence fallback) {
+    if (kseq.count() > 1) {
+        kseq = QKeySequence(kseq[0]);
+    }
+    if (kseq.isEmpty() || kseq.toString().isEmpty()) {
+        return fallback;
+    }
+    return kseq;
 }
 
-// The following three functions are referred from:
-// https://github.com/ddqd/qxtglobalshortcut5/blob/master/gui/qxtglobalshortcut_win.cpp#L39-L242
+inline bool utils::registerHotkey(WId hwnd, QKeySequence kseq, int *id) {
+    UINT fsModifiers, vk;
+    if (!utils::qKeySequenceToNative(kseq, &fsModifiers, &vk)) {
+        return false;
+    }
+    *id = utils::generateHotkeyId(fsModifiers, vk);
+    return RegisterHotKey((HWND) hwnd, *id, fsModifiers, vk);
+}
 
-UINT qKeyboardModifiersToNative(Qt::KeyboardModifiers modifiers);
-UINT qKeyCodeToNative(Qt::Key key);
-inline bool qKeySequenceToNative(const QKeySequence &shortcut, UINT *fsModifiers, UINT *vk) {
-    if (shortcut.isEmpty()) {
-        *fsModifiers = 0;
-        *vk = 0;
+inline bool utils::unregisterHotkey(WId hwnd, QKeySequence kseq) {
+    UINT fsModifiers, vk;
+    if (!utils::qKeySequenceToNative(kseq, &fsModifiers, &vk)) {
+        return false;
+    }
+    int id = utils::generateHotkeyId(fsModifiers, vk);
+    return UnregisterHotKey((HWND) hwnd, id);
+}
+
+inline bool utils::qKeySequenceToNative(QKeySequence kseq, UINT *fsModifiers, UINT *vk) {
+    // Referred from https://github.com/ddqd/qxtglobalshortcut5/blob/master/gui/qxtglobalshortcut.cpp#L75-L88
+    if (kseq.isEmpty()) {
         return false;
     }
     Qt::KeyboardModifiers allMods = Qt::ShiftModifier | Qt::ControlModifier | Qt::AltModifier | Qt::MetaModifier;
-    auto mods = Qt::KeyboardModifiers(shortcut[0] & allMods);
-    auto key = Qt::Key((shortcut[0] ^ allMods) & shortcut[0]);
-    *fsModifiers = qKeyboardModifiersToNative(mods);
-    *vk = qKeyCodeToNative(key);
+    auto mods = Qt::KeyboardModifiers(kseq[0] & allMods);
+    auto key = Qt::Key((kseq[0] ^ allMods) & kseq[0]);
+    *fsModifiers = utils::qKeyboardModifiersToNative(mods);
+    *vk = utils::qKeyCodeToNative(key);
     return true;
 }
 
-inline UINT qKeyboardModifiersToNative(Qt::KeyboardModifiers modifiers) {
+inline UINT utils::qKeyboardModifiersToNative(Qt::KeyboardModifiers modifiers) {
+    // Referred from https://github.com/ddqd/qxtglobalshortcut5/blob/master/gui/qxtglobalshortcut_win.cpp#L61-L77
     UINT native = 0;
     if (modifiers & Qt::AltModifier) {
         native |= MOD_ALT;  // 0x0001
@@ -66,7 +90,8 @@ inline UINT qKeyboardModifiersToNative(Qt::KeyboardModifiers modifiers) {
     return native;
 }
 
-inline UINT qKeyCodeToNative(Qt::Key key) {
+inline UINT utils::qKeyCodeToNative(Qt::Key key) {
+    // Referred from https://github.com/ddqd/qxtglobalshortcut5/blob/master/gui/qxtglobalshortcut.cpp#L75-L88
     switch (key) {
     case Qt::Key_Escape:
         return VK_ESCAPE;
@@ -222,14 +247,11 @@ inline UINT qKeyCodeToNative(Qt::Key key) {
     }
 }
 
-// The following five functions are copied and modified from:
-// https://github.com/Aoi-hosizora/OpenWithMenu/blob/master/OpenWithMenu/Utils.hpp#L229-L274
-
-inline bool listRegKeyNames(const std::wstring &root_path, std::vector<std::wstring> *out) {
+inline bool utils::listRegKeyNames(std::wstring root_path, std::vector<std::wstring> *out) {
+    // Copied from https://github.com/Aoi-hosizora/OpenWithMenu/blob/master/OpenWithMenu/Utils.hpp#L70-L87
     const int MAX_REG_KEY_LENGTH = 512;
     HKEY root_key;
     if (RegOpenKeyEx(HKEY_CURRENT_USER, root_path.c_str(), 0, KEY_ENUMERATE_SUB_KEYS, &root_key) != ERROR_SUCCESS) {
-        *out = {};
         return false;
     }
 
@@ -250,11 +272,12 @@ inline bool listRegKeyNames(const std::wstring &root_path, std::vector<std::wstr
     return true;
 }
 
-inline bool openRegKeyForValues(const std::wstring &key_path, HKEY *out) {
+inline bool utils::openRegKeyForValues(std::wstring key_path, HKEY *out) {
     return RegOpenKeyEx(HKEY_CURRENT_USER, key_path.c_str(), 0, KEY_QUERY_VALUE, out) == ERROR_SUCCESS;
 }
 
-inline std::wstring readRegSz(const HKEY &key, const std::wstring &name, const std::wstring &fallback) {
+inline std::wstring utils::readRegSz(HKEY key, std::wstring name, std::wstring fallback) {
+    // Copied from https://github.com/Aoi-hosizora/OpenWithMenu/blob/master/OpenWithMenu/Utils.hpp#L232-L239
     const int MAX_REG_SZ_LENGTH = 2048;
     wchar_t value[MAX_REG_SZ_LENGTH];
     DWORD value_size = sizeof(value) / sizeof(value[0]);
@@ -264,22 +287,8 @@ inline std::wstring readRegSz(const HKEY &key, const std::wstring &name, const s
     return value;
 }
 
-inline std::wstring trimWstring(const std::wstring &str, const std::vector<wchar_t> &chars) {
-    std::wstring copy = str;
-    auto contains = [](const std::vector<wchar_t> &chars, wchar_t given) -> bool {
-        return std::find(chars.begin(), chars.end(), given) != chars.end();
-    };
-    copy.erase(copy.begin(), std::find_if(copy.begin(), copy.end(), [&](wchar_t ch) {
-        return !contains(chars, ch);
-    }));  // trim left
-    copy.erase(std::find_if(copy.rbegin(), copy.rend(), [&](wchar_t ch) {
-        return !contains(chars, ch);
-    }).base(),
-        copy.end());  // trim right
-    return copy;
-}
-
-inline int parseStyleFromString(const std::wstring &s) {
+inline int utils::parseStyleFromString(std::wstring s) {
+    // Copied from https://github.com/Aoi-hosizora/OpenWithMenu/blob/master/OpenWithMenu/Utils.hpp#L128-L166
     if (s == L"" || s == L"SW_HIDE" || s == L"0") {
         return SW_HIDE;
     }
@@ -317,6 +326,37 @@ inline int parseStyleFromString(const std::wstring &s) {
         return SW_FORCEMINIMIZE;
     }
     return SW_HIDE;
+}
+
+inline std::wstring utils::formatStyleToString(int style) {
+    switch (style) {
+    case 0:
+        return L"SW_HIDE";
+    case 1:
+        return L"SW_SHOWNORMAL";
+    case 2:
+        return L"SW_SHOWMINIMIZED";
+    case 3:
+        return L"SW_SHOWMAXIMIZED";
+    case 4:
+        return L"SW_SHOWNOACTIVATE";
+    case 5:
+        return L"SW_SHOW";
+    case 6:
+        return L"SW_MINIMIZE";
+    case 7:
+        return L"SW_SHOWMINNOACTIVE";
+    case 8:
+        return L"SW_SHOWNA";
+    case 9:
+        return L"SW_RESTORE";
+    case 10:
+        return L"SW_SHOWDEFAULT";
+    case 11:
+        return L"SW_FORCEMINIMIZE";
+    default:
+        return L"SW_HIDE";
+    }
 }
 
 #endif  // UTILS_HPP

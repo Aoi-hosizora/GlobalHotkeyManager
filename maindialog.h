@@ -29,9 +29,10 @@ class MainDialog : public QDialog {
     void keyPressEvent(QKeyEvent *) override;
     void onBtnHideClicked();
     void onBtnExitClicked();
+    void onBtnEditClicked();
+    void onBtnInvokeClicked();
     void onBtnRefreshClicked();
     void onLstHotkeysCurrentRowChanged(int);
-    void onLstHotkeysDoubleClicked();
 
    protected:
     bool nativeEvent(const QByteArray &, void *, long *) override;
@@ -39,13 +40,16 @@ class MainDialog : public QDialog {
    private:
     void setupEvents();
     void loadData();
+    void invokeItem(const HotkeyItem *);
+    void close(bool);
 
    private:
     Ui::MainDialog *ui;
-    std::vector<HotkeyItem> hotkey_items;
-    std::map<int, const HotkeyItem *> id_to_item;
-    const int SHOWME_HOTKEY = 0;
-    bool sure_to_exit = false;
+    const QString TITLE = tr("Global Hotkey Manager");
+    ManagerConfig config;
+    bool sureToExit = false;
+    std::vector<HotkeyItem> hotkeyItems;
+    std::map<int, const HotkeyItem *> idToHotkeyItem;
 };
 
 #endif  // MAINDIALOG_H

@@ -6,14 +6,14 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>384</width>
-    <height>317</height>
+    <width>360</width>
+    <height>450</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
     <width>360</width>
-    <height>300</height>
+    <height>450</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -23,7 +23,7 @@
    <item>
     <widget class="QLabel" name="lblListTitle">
      <property name="text">
-      <string>&amp;Global hotkeys (All %0)</string>
+      <string>&amp;Global hotkeys: (All %0)</string>
      </property>
      <property name="buddy">
       <cstring>lstHotkeys</cstring>
@@ -32,6 +32,13 @@
    </item>
    <item>
     <widget class="QListWidget" name="lstHotkeys">
+     <property name="styleSheet">
+      <string notr="true">QListWidget::item {
+	padding-top: 3px;
+	padding-bottom: 3px;
+}
+</string>
+     </property>
      <property name="editTriggers">
       <set>QAbstractItemView::NoEditTriggers</set>
      </property>
@@ -41,10 +48,130 @@
      <property name="horizontalScrollMode">
       <enum>QAbstractItemView::ScrollPerPixel</enum>
      </property>
+     <item>
+      <property name="text">
+       <string>新しいアイテム</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>新しいアイテム</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>新しいアイテム</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="grpDetails">
+     <property name="title">
+      <string>Detail</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <widget class="QLabel" name="lblDetailTitle">
+        <property name="text">
+         <string>TextLabel</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QGridLayout" name="gridLayout">
+        <property name="topMargin">
+         <number>2</number>
+        </property>
+        <property name="bottomMargin">
+         <number>2</number>
+        </property>
+        <property name="verticalSpacing">
+         <number>8</number>
+        </property>
+        <item row="1" column="1">
+         <widget class="QLabel" name="lblParam">
+          <property name="text">
+           <string>TextLabel</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QLabel" name="lblFileKey">
+          <property name="text">
+           <string>File:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QLabel" name="lblFile">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>TextLabel</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0">
+         <widget class="QLabel" name="lblDirKey">
+          <property name="text">
+           <string>Directory:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="lblParamKey">
+          <property name="text">
+           <string>Parameter:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="QLabel" name="lblDir">
+          <property name="text">
+           <string>TextLabel</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="lblOpStyleKey">
+          <property name="text">
+           <string>Verb &amp; Style:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QLabel" name="lblOpStyle">
+          <property name="text">
+           <string>TextLabel</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
     </widget>
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_4">
+     <item>
+      <widget class="QPushButton" name="btnEdit">
+       <property name="text">
+        <string>&amp;Edit...</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btnInvoke">
+       <property name="text">
+        <string>&amp;Invoke</string>
+       </property>
+      </widget>
+     </item>
      <item>
       <spacer name="horizontalSpacer_2">
        <property name="orientation">
@@ -59,30 +186,9 @@
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="btnAdd">
+      <widget class="QPushButton" name="btnRefresh">
        <property name="text">
-        <string>&amp;Add...</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="btnRemove">
-       <property name="text">
-        <string>&amp;Remove</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="editBtn">
-       <property name="text">
-        <string>&amp;Edit...</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="btnInvoke">
-       <property name="text">
-        <string>&amp;Invoke</string>
+        <string>Re&amp;fresh</string>
        </property>
       </widget>
      </item>
@@ -98,7 +204,7 @@
    <item>
     <widget class="QLabel" name="lblHint">
      <property name="text">
-      <string>Note: You can press Ctrl+Shift+Alt+F12 to open this window.</string>
+      <string>Note: You can press %0 to open this window.</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -121,13 +227,6 @@
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="btnRefresh">
-       <property name="text">
-        <string>Re&amp;fresh</string>
-       </property>
-      </widget>
-     </item>
-     <item>
       <widget class="QPushButton" name="btnHide">
        <property name="text">
         <string>&amp;Hide</string>
@@ -147,9 +246,7 @@
  </widget>
  <tabstops>
   <tabstop>lstHotkeys</tabstop>
-  <tabstop>btnAdd</tabstop>
-  <tabstop>btnRemove</tabstop>
-  <tabstop>editBtn</tabstop>
+  <tabstop>btnEdit</tabstop>
   <tabstop>btnInvoke</tabstop>
   <tabstop>btnRefresh</tabstop>
   <tabstop>btnHide</tabstop>

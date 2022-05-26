@@ -2,11 +2,10 @@
 // #include <QtCore/QTranslator>
 
 #include "maindialog.h"
-#include "utils.hpp"
 
 int main(int argc, char *argv[]) {
     QApplication a(argc, argv);
-    a.setFont(getSystemMessageFont());
+    a.setFont(a.font("QMessageBox"));
     a.setQuitOnLastWindowClosed(false);
 
     // QTranslator translator;

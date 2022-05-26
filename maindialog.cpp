@@ -1,6 +1,7 @@
 #include "maindialog.h"
 
 #include <QtCore/QDebug>
+#include <QtCore/QRegularExpression>
 #include <QtWidgets/QMessageBox>
 
 #include "ui_maindialog.h"
@@ -15,52 +16,75 @@ MainDialog::MainDialog(QWidget *parent) : QDialog(parent), ui(new Ui::MainDialog
 }
 
 MainDialog::~MainDialog() {
-    qDebug() << "~MainDialog()";
     delete ui;
 }
 
 void MainDialog::setupEvents() {
     connect(ui->btnHide, SIGNAL(clicked()), this, SLOT(onBtnHideClicked()));
     connect(ui->btnExit, SIGNAL(clicked()), this, SLOT(onBtnExitClicked()));
+    connect(ui->btnEdit, SIGNAL(clicked()), this, SLOT(onBtnEditClicked()));
+    connect(ui->btnInvoke, SIGNAL(clicked()), this, SLOT(onBtnInvokeClicked()));
     connect(ui->btnRefresh, SIGNAL(clicked()), this, SLOT(onBtnRefreshClicked()));
     connect(ui->lstHotkeys, SIGNAL(currentRowChanged(int)), this, SLOT(onLstHotkeysCurrentRowChanged(int)));
-    connect(ui->lstHotkeys, SIGNAL(doubleClicked(const QModelIndex &)), this, SLOT(onLstHotkeysDoubleClicked()));
 
-    if (!RegisterHotKey((HWND) winId(), SHOWME_HOTKEY, MOD_CONTROL | MOD_SHIFT | MOD_ALT, VK_F12)) {
-        QMessageBox::critical(this, tr("Error"), tr("RegisterHotKey Ctrl+Shift+Alt+F12 failed"));
-        sure_to_exit = true;
-        close();
+    if (!ManagerConfig::readConfigFromRegistry(&config)) {
+        QMessageBox::critical(this, TITLE, tr("Failed to load config from registry, exiting..."));
+        close(true);
+        return;
     }
+    int keyId;
+    if (!utils::registerHotkey(winId(), config.hotkey(), &keyId)) {
+        QMessageBox::critical(this, TITLE, tr("Failed to register hotkey %0 for showing window, exiting..."));
+        close(true);
+        return;
+    }
+    ui->lblHint->setText(tr("Note: You can press %0 to open this window.").arg(config.hotkey().toString()));
+    config.setKeyId(keyId);
 }
 
 void MainDialog::loadData() {
-    if (!HotkeyItem::readConfigsFromRegistry(&hotkey_items)) {
-        QMessageBox::critical(this, tr("Error"), tr("readConfigsFromRegistry failed"));
-        sure_to_exit = true;
-        close();
+    ui->lstHotkeys->clear();
+    idToHotkeyItem.clear();
+    hotkeyItems.clear();
+    if (!HotkeyItem::readConfigsFromRegistry(&hotkeyItems)) {
+        QMessageBox::critical(this, TITLE, tr("Failed to load hotkey items from registry, exiting..."));
+        close(true);
+        return;
     }
 
-    // ui->lstHotkeys->setSpacing(10);
-    ui->lstHotkeys->setStyleSheet("QListWidget::item { padding-left: 2px; padding-top: 3px; padding-bottom: 3px; }");
-    for (auto &item : hotkey_items) {
-        UINT fsModifiers, vk;
-        qKeySequenceToNative(item.hotkey(), &fsModifiers, &vk);
-        int id = generateHotkeyId(fsModifiers, vk);
-        if (!RegisterHotKey((HWND) winId(), id, fsModifiers, vk)) {
-            QMessageBox::critical(this, tr("Error"), tr("RegisterHotKey %0 failed").arg(item.hotkey().toString()));
-            ui->lstHotkeys->addItem(item.toString() + " (failed)");
+    std::vector<HotkeyItem *> failedItems;
+    for (auto &item : hotkeyItems) {
+        int keyId;
+        if (utils::registerHotkey(winId(), item.hotkey(), &keyId)) {
+            idToHotkeyItem.insert(std::make_pair(keyId, &item));
+            auto line = item.toString().replace(QRegularExpression("^|$"), "\u2009").replace(QRegularExpression("\n"), "\u2009\n\u2009");  // /u+2009 => Thin Space
+            ui->lstHotkeys->addItem(line);
         } else {
-            id_to_item.insert(std::make_pair(id, &item));
-            ui->lstHotkeys->addItem(item.toString());
+            failedItems.push_back(&item);
         }
     }
+    ui->lblListTitle->setText(tr("&Global hotkeys: (All %0)").arg(ui->lstHotkeys->count()));
+
+    if (failedItems.size() > 0) {
+        QStringList l;
+        for (auto item : failedItems) {
+            l << QString("\"%0\" (%1)").arg(item->title(), item->hotkey().toString());
+        }
+        QMessageBox::critical(this, TITLE,
+            tr("The following hotkey items cannot be registered, maybe they are already used. Please check and refresh the list.") + "\n\n" + l.join("\n"));
+    }
+}
+
+void MainDialog::close(bool sureToExit) {
+    this->sureToExit = sureToExit;
+    QWidget::close();
 }
 
 void MainDialog::closeEvent(QCloseEvent *e) {
     enum { EXIT,
         HIDE,
         CANCEL } action;
-    if (sure_to_exit) {
+    if (sureToExit) {
         action = EXIT;
     } else {
         QMessageBox msgBox;
@@ -78,10 +102,10 @@ void MainDialog::closeEvent(QCloseEvent *e) {
     }
 
     if (action == EXIT) {
-        for (auto item : hotkey_items) {
-            UnregisterHotKey((HWND) winId(), generateHotkeyId(item.hotkey()));
+        for (auto &item : hotkeyItems) {
+            utils::unregisterHotkey(winId(), item.hotkey());
         }
-        UnregisterHotKey((HWND) winId(), SHOWME_HOTKEY);
+        utils::unregisterHotkey(winId(), config.hotkey());
         e->accept();
         qApp->quit();
     } else {
@@ -106,23 +130,29 @@ bool MainDialog::nativeEvent(const QByteArray &eventType, void *message, long *r
     auto msg = reinterpret_cast<MSG *>(message);
     if (msg->message == WM_HOTKEY) {
         int id = (int) msg->wParam;
-        if (id == SHOWME_HOTKEY) {
+        if (id == config.keyId()) {
             setWindowOpacity(1);
             show();
             return true;
         }
-        if (id_to_item.find(id) != id_to_item.end()) {
-            auto item = id_to_item.at(id);
-            auto r = (uintptr_t) ShellExecuteW(nullptr,
-                item->op().toStdWString().c_str(), item->file().toStdWString().c_str(),
-                item->param().toStdWString().c_str(), item->dir().toStdWString().c_str(), item->style());
-            if (r <= 32) {
-                QMessageBox::critical(this, "critical", QString("Failed to execute the given command \"%0\" (errno = %1)").arg(item->title(), QString::number(r)));
-            }
+        if (idToHotkeyItem.find(id) != idToHotkeyItem.end()) {
+            invokeItem(idToHotkeyItem.at(id));
             return true;
         }
     }
     return false;
+}
+
+void MainDialog::invokeItem(const HotkeyItem *item) {
+    const wchar_t *op = item->op().toStdWString().c_str();
+    const wchar_t *file = item->file().toStdWString().c_str();
+    const wchar_t *param = item->param().toStdWString().c_str();
+    const wchar_t *dir = item->dir().toStdWString().c_str();
+    int style = item->style();
+    auto result = (uintptr_t) ShellExecuteW(nullptr, op, file, param, dir, style);
+    if (result <= 32) {
+        QMessageBox::critical(this, TITLE, QString("Failed to execute the given command \"%0\" (errno = %1)").arg(item->title(), QString::number(result)));
+    }
 }
 
 void MainDialog::onBtnHideClicked() {
@@ -130,27 +160,51 @@ void MainDialog::onBtnHideClicked() {
 }
 
 void MainDialog::onBtnExitClicked() {
-    sure_to_exit = false;
-    close();
+    close(false);
+}
+
+void MainDialog::onBtnEditClicked() {
+    QMessageBox::information(this, TITLE, "TODO");
+}
+
+void MainDialog::onBtnInvokeClicked() {
+    auto index = ui->lstHotkeys->currentRow();
+    if (index < 0 || index >= (int) hotkeyItems.size()) {
+        return;
+    }
+    auto item = hotkeyItems.at(index);
+    invokeItem(&item);
 }
 
 void MainDialog::onBtnRefreshClicked() {
-    for (auto &item : hotkey_items) {
-        UnregisterHotKey((HWND) winId(), generateHotkeyId(item.hotkey()));
+    for (auto &item : hotkeyItems) {
+        utils::unregisterHotkey(winId(), item.hotkey());
     }
-    id_to_item.clear();
-    hotkey_items.clear();
-    ui->lstHotkeys->clear();
     loadData();
+    QMessageBox::information(this, TITLE, "Done.");
 }
 
 void MainDialog::onLstHotkeysCurrentRowChanged(int index) {
-    qDebug() << ui->lstHotkeys->item(index)->data(Qt::DisplayRole).toString();
-}
+    if (index < 0 || index >= (int) hotkeyItems.size()) {
+        return;
+    }
+    // qDebug() << ui->lstHotkeys->item(index)->data(Qt::DisplayRole).toString();
+    auto item = hotkeyItems.at(index);
 
-void MainDialog::onLstHotkeysDoubleClicked() {
-    int index = ui->lstHotkeys->currentRow();
-    auto item = hotkey_items.at(index);
-    QMessageBox::information(this, tr("Global Hotkey Manager"),
-        QString("Title: %0\nHotkey: %1\nOperation: %2\nFile: %3\nParameter: %4\nDirectory: %5").arg(item.title(), item.hotkey().toString(), item.op(), item.file(), item.param(), item.dir()));
+    auto setLabel = [](QLabel *lbl, QString str) {
+        if (str.isEmpty()) {
+            str = "<empty>";
+        }
+        QFontMetrics metrics(lbl->font());
+        QString elidedText = metrics.elidedText(str, Qt::ElideRight, lbl->width());
+        lbl->setText(elidedText);
+        if (elidedText.contains("…")) {
+            lbl->setToolTip(str);
+        }
+    };
+    setLabel(ui->lblDetailTitle, tr("\"%0\" (%1)").arg(item.title(), item.hotkey().toString()));
+    setLabel(ui->lblFile, item.file());
+    setLabel(ui->lblParam, item.param());
+    setLabel(ui->lblDir, item.dir());
+    setLabel(ui->lblOpStyle, tr("%0, %1").arg(item.op(), QString::fromStdWString(utils::formatStyleToString(item.style()))));
 }
