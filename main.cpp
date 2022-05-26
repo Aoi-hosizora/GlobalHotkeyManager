@@ -7,6 +7,7 @@
 int main(int argc, char *argv[]) {
     QApplication a(argc, argv);
     a.setFont(getSystemMessageFont());
+    a.setQuitOnLastWindowClosed(false);
 
     // QTranslator translator;
     // translator.load(":/en_US.qm");

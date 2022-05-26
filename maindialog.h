@@ -1,11 +1,12 @@
 #ifndef MAINDIALOG_H
 #define MAINDIALOG_H
 
-#include <Windows.h>
-
 #include <QtGui/QCloseEvent>
 #include <QtGui/QKeyEvent>
 #include <QtWidgets/QDialog>
+#include <map>
+#include <qt_windows.h>
+#include <stdint.h>
 #include <vector>
 
 #include "hotkey_item.h"
@@ -28,6 +29,7 @@ class MainDialog : public QDialog {
     void keyPressEvent(QKeyEvent *) override;
     void onBtnHideClicked();
     void onBtnExitClicked();
+    void onBtnRefreshClicked();
     void onLstHotkeysCurrentRowChanged(int);
     void onLstHotkeysDoubleClicked();
 
@@ -41,6 +43,7 @@ class MainDialog : public QDialog {
    private:
     Ui::MainDialog *ui;
     std::vector<HotkeyItem> hotkey_items;
+    std::map<int, const HotkeyItem *> id_to_item;
     const int SHOWME_HOTKEY = 0;
     bool sure_to_exit = false;
 };

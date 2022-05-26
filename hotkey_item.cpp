@@ -1,14 +1,12 @@
 #include "hotkey_item.h"
 
-#include <Windows.h>
-
-#include <QtCore/QDebug>
 #include <QtCore/QStringList>
+#include <qt_windows.h>
 #include <string>
 
 #include "utils.hpp"
 
-QString HotkeyItem::toString() {
+QString HotkeyItem::toString() const {
     if (title_ == "" || hotkey_.isEmpty() || file_ == "") {
         return "<invalid hotkey setting>";
     }
@@ -22,70 +20,37 @@ QString HotkeyItem::toString() {
         l << param_;
     }
 
-    return QString("%0 (%1)\n%2").arg(title_).arg(hotkey_.toString()).arg(l.join(" "));
-    // return QString().asprintf("%s (%s) - %s", title, hotkey.toString(), l.join(" "));
+    return QString("%0 (%1)\n%2").arg(title_, hotkey_.toString(), l.join(" "));
 }
 
-const int MAX_REGKEY_LENGTH = 512;
-
 bool HotkeyItem::readConfigsFromRegistry(std::vector<HotkeyItem> *out) {
-    // get root key and sub keys
-    std::wstring reg_root = L"SOFTWARE\\AoiHosizora\\GlobalHotkeyManager";
-    HKEY root_key;
-    if (RegOpenKeyEx(HKEY_CURRENT_USER, reg_root.c_str(), 0, KEY_ENUMERATE_SUB_KEYS | KEY_QUERY_VALUE | KEY_WOW64_64KEY, &root_key) != ERROR_SUCCESS) {
+    std::wstring root_path = L"SOFTWARE\\AoiHosizora\\GlobalHotkeyManager";
+    std::vector<std::wstring> key_names;
+    if (!listRegKeyNames(root_path, &key_names)) {
         *out = {};
         return false;
     }
-    std::vector<std::wstring> sub_keys;
-    wchar_t key_name[MAX_REGKEY_LENGTH];
-    DWORD key_name_size = sizeof(key_name) / sizeof(key_name[0]);
-    DWORD key_name_cch = key_name_size;
-    int index = 0;
-    while (RegEnumKeyExW(root_key, index, key_name, &key_name_cch, nullptr, nullptr, nullptr, nullptr) == ERROR_SUCCESS) {
-        index++;
-        key_name_cch = key_name_size;
-        sub_keys.push_back(key_name);
-    }
-    RegCloseKey(root_key);
 
-    // check each sub keys
     *out = {};
-    for (auto key : sub_keys) {
-        std::wstring reg_sub = reg_root + L"\\" + key;
-        qDebug() << QString::fromStdWString(reg_sub);
-        HKEY sub_key;
-        if (RegOpenKeyEx(HKEY_CURRENT_USER, reg_sub.c_str(), 0, KEY_ENUMERATE_SUB_KEYS | KEY_QUERY_VALUE | KEY_WOW64_64KEY, &sub_key) != ERROR_SUCCESS) {
+    for (auto key_name : key_names) {
+        std::wstring key_path = root_path + L"\\" + key_name;
+        HKEY key;
+        if (!openRegKeyForValues(key_path, &key)) {
             continue;
         }
-
-        // get key's values
-        auto title = readRegSz(sub_key, L"", L"");
-        auto hotkey = readRegSz(sub_key, L"Hotkey", L"");
-        auto op = readRegSz(sub_key, L"Operation", L"open");
-        auto file = readRegSz(sub_key, L"File", L"");
-        auto param = readRegSz(sub_key, L"Parameter", L"");
-        auto dir = readRegSz(sub_key, L"Directory", L"%V");
-        title = trimWstring(title, {L' '});
-        hotkey = trimWstring(hotkey, {L' '});
-        op = trimWstring(op, {L' '});
-        file = trimWstring(file, {L' ', L'"'});
-        param = trimWstring(param, {L' '});
-        dir = trimWstring(dir, {L' ', L'"'});
-
-        // save config
-        auto q_title = QString::fromStdWString(title);
-        auto q_hotkey = QKeySequence::fromString(QString::fromStdWString(hotkey));
-        qDebug() << q_title << q_hotkey.toString();
-        auto q_op = QString::fromStdWString(op);
-        auto q_file = QString::fromStdWString(file);
-        auto q_param = QString::fromStdWString(param);
-        auto q_dir = QString::fromStdWString(dir);
-        if (!q_title.isEmpty() && !q_hotkey.isEmpty() && !q_file.isEmpty()) {
-            out->push_back(HotkeyItem(q_title, q_hotkey, q_op, q_file, q_param, q_dir));
+        auto title = QString::fromStdWString(readRegSz(key, L"", L"")).trimmed();
+        auto hotkey = QString::fromStdWString(readRegSz(key, L"Hotkey", L"")).trimmed();
+        auto op = QString::fromStdWString(readRegSz(key, L"Operation", L"open")).trimmed();
+        auto file = QString::fromStdWString(readRegSz(key, L"File", L"")).trimmed().replace("\"", "");
+        auto param = QString::fromStdWString(readRegSz(key, L"Parameter", L"")).trimmed();
+        auto dir = QString::fromStdWString(readRegSz(key, L"Directory", L"")).trimmed().replace("\"", "");
+        auto style = QString::fromStdWString(readRegSz(key, L"Style", L"SW_NORMAL")).trimmed();
+        auto hotkey_ = QKeySequence::fromString(hotkey);
+        auto style_ = parseStyleFromString(style.toStdWString());
+        if (!title.isEmpty() && !hotkey_.isEmpty() && !file.isEmpty()) {
+            out->push_back(HotkeyItem(title, hotkey_, op, file, param, dir, style_));
         }
-
-        RegCloseKey(sub_key);
+        RegCloseKey(key);
     }
-
     return true;
 }
