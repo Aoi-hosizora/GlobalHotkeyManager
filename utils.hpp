@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <qt_windows.h>
 #include <string>
+#include <vector>
 
 namespace utils {
 

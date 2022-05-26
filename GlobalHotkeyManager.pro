@@ -7,11 +7,11 @@ CONFIG += debug console
 SOURCES += \
     main.cpp \
     maindialog.cpp \
-    hotkey_item.cpp
+    manager_config.cpp
 
 HEADERS += \
     maindialog.h \
-    hotkey_item.h \
+    manager_config.h \
     utils.hpp
 
 FORMS += \
@@ -21,7 +21,6 @@ RESOURCES += \
     GlobalHotkeyManager.qrc
 
 TRANSLATIONS += \
-    res/translate_en_US.ts \
     res/translate_zh_CN.ts \
     res/translate_ja_JP.ts
 

@@ -48,21 +48,6 @@
      <property name="horizontalScrollMode">
       <enum>QAbstractItemView::ScrollPerPixel</enum>
      </property>
-     <item>
-      <property name="text">
-       <string>新しいアイテム</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>新しいアイテム</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>新しいアイテム</string>
-      </property>
-     </item>
     </widget>
    </item>
    <item>
@@ -192,7 +177,7 @@
      <item>
       <widget class="QPushButton" name="btnRefresh">
        <property name="text">
-        <string>Re&amp;fresh</string>
+        <string>&amp;Refresh</string>
        </property>
       </widget>
      </item>
@@ -208,7 +193,7 @@
    <item>
     <widget class="QLabel" name="lblHint">
      <property name="text">
-      <string>Note: You can press %0 to open this window.</string>
+      <string>Tip: You can press %0 to open this window.</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>

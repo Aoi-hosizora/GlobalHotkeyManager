@@ -9,7 +9,7 @@
 #include <stdint.h>
 #include <vector>
 
-#include "hotkey_item.h"
+#include "manager_config.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -21,7 +21,7 @@ class MainDialog : public QDialog {
     Q_OBJECT
 
    public:
-    MainDialog(QWidget *parent = nullptr);
+    MainDialog(const ManagerConfig *, QWidget *parent = nullptr);
     ~MainDialog();
 
    private Q_SLOTS:
@@ -39,15 +39,15 @@ class MainDialog : public QDialog {
 
    private:
     void bindEvents();
-    void readConfig();
     bool loadItems(bool = true);
     void invokeItem(const HotkeyItem *);
     void close(bool);
 
    private:
     Ui::MainDialog *ui;
+    const ManagerConfig *config;
     const QString TITLE = tr("Global Hotkey Manager");
-    ManagerConfig config;
+    int showWindowKeyId = 0;
     bool sureToExit = false;
     std::vector<HotkeyItem> hotkeyItems;
     std::map<int, const HotkeyItem *> idToHotkeyItem;

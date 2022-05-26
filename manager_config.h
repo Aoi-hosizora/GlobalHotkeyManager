@@ -1,9 +1,35 @@
-#ifndef HOTKEY_ITEM_H
-#define HOTKEY_ITEM_H
+#ifndef MANAGER_CONFIG_H
+#define MANAGER_CONFIG_H
 
 #include <QtCore/QString>
 #include <QtGui/QKeySequence>
 #include <vector>
+
+class ManagerConfig {
+   public:
+    enum class Language {
+        ENGLISH,
+        CHINESE,
+        JAPANESE,
+    };
+
+    ManagerConfig() = default;
+    ManagerConfig(const ManagerConfig &) = default;
+    ~ManagerConfig() = default;
+
+    ManagerConfig(QKeySequence hotkey, Language lang)
+        : hotkey_(hotkey), lang_(lang) { }
+
+    QKeySequence hotkey() const { return hotkey_; }
+    Language lang() const { return lang_; }
+
+    static QString registryPath(bool = true);
+    static bool readConfigFromRegistry(ManagerConfig *);
+
+   private:
+    QKeySequence hotkey_;
+    Language lang_;
+};  // class ManagerConfig
 
 class HotkeyItem {
    public:
@@ -30,34 +56,11 @@ class HotkeyItem {
    private:
     QString title_ = "";
     QKeySequence hotkey_ = 0;  // empty
-    QString op_ = "";          // open
+    QString op_ = "";  // open
     QString file_ = "";
     QString param_ = "";
     QString dir_ = "";
     int style_ = 0;  // SW_HIDE
-};
+};  // class HotkeyItem
 
-class ManagerConfig {
-   public:
-    ManagerConfig() = default;
-    ManagerConfig(const ManagerConfig &) = default;
-    ~ManagerConfig() = default;
-
-    ManagerConfig(QKeySequence hotkey, QString lang)
-        : hotkey_(hotkey), lang_(lang), keyId_(0) { }
-
-    QKeySequence hotkey() const { return hotkey_; }
-    QString lang() const { return lang_; }
-    int keyId() const { return keyId_; }
-    void setKeyId(int keyId) { keyId_ = keyId; }
-
-    static QString registryPath(bool = true);
-    static bool readConfigFromRegistry(ManagerConfig *);
-
-   private:
-    QKeySequence hotkey_;
-    QString lang_;
-    int keyId_;
-};
-
-#endif  // HOTKEY_ITEM_H
+#endif  // MANAGER_CONFIG_H

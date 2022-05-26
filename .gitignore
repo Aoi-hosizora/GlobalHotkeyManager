@@ -19,3 +19,4 @@ Makefile*
 moc_*.cpp
 ui_*.h
 *.qm
+qt_*.ts

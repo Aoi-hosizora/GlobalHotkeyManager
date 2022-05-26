@@ -1,7 +1,25 @@
 <RCC>
     <qresource prefix="/">
-        <file alias="en_US.qm">res/translate_en_US.qm</file>
-        <file alias="zh_CN.qm">res/translate_zh_CN.qm</file>
-        <file alias="ja_JP.qm">res/translate_ja_JP.qm</file>
+        <!-- 
+            lupdate GlobalHotkeyManager.pro
+            # editing res/*.ts ...
+            lrelease GlobalHotkeyManager.pro
+         -->
+        <file alias="app_zh_CN.qm">res/translate_zh_CN.qm</file>
+        <file alias="app_ja_JP.qm">res/translate_ja_JP.qm</file>
+
+        <!-- 
+            lconvert -o res\qt_zh_CN.ts D:\Development\Qt\5.15.2\mingw81_64\translations\qt_zh_CN.qm
+            sed -i "s/QDialogButtonBox/QPlatformTheme/g" res\qt_zh_CN.ts
+            lrelease res\qt_zh_CN.ts -qm res\qt_zh_CN.qm
+         -->
+        <file alias="qt_zh_CN.qm">res/qt_zh_CN.qm</file>
+
+        <!-- 
+            # lconvert -o res\qt_ja_JP.ts D:\Development\Qt\5.15.2\mingw81_64\translations\qtbase_ja.qm D:\Development\Qt\5.15.2\mingw81_64\translations\qtdeclarative_ja.qm
+            lconvert -o res\qt_ja_JP.qm D:\Development\Qt\5.15.2\mingw81_64\translations\qtbase_ja.qm D:\Development\Qt\5.15.2\mingw81_64\translations\qtdeclarative_ja.qm
+            # baseTranslator.load("qt_zh_CN.qm", QLibraryInfo::location(QLibraryInfo::TranslationsPath))
+         -->
+        <file alias="qt_ja_JP.qm">res/qt_ja_JP.qm</file> 
     </qresource>
 </RCC>
