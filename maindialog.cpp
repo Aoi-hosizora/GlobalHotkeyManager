@@ -14,8 +14,9 @@ MainDialog::MainDialog(const ManagerConfig *config, QWidget *parent) : QDialog(p
 
     connect(this, &MainDialog::shownFirstly, this, [this]() {
         QTimer::singleShot(0, this, [this]() {
-            loadConfig();
-            loadItems();
+            if (loadConfig()) {
+                loadItems();
+            }
         });
     });
 }
@@ -67,7 +68,7 @@ bool MainDialog::loadItems(bool force) {
 
     // 3. check and register new hotkeys
     hotkeyItems = newItems;
-    std::vector<HotkeyItem *> failedItems;
+    std::vector<const HotkeyItem *> failedItems;
     for (auto &item : hotkeyItems) {
         int keyId;
         if (utils::registerHotkey(winId(), item.hotkey(), &keyId)) {
@@ -178,10 +179,10 @@ bool MainDialog::nativeEvent(const QByteArray &eventType, void *message, long *r
 }
 
 void MainDialog::invokeItem(const HotkeyItem *item) {
-    const wchar_t *op = item->op().toStdWString().c_str();
-    const wchar_t *file = item->file().toStdWString().c_str();
-    const wchar_t *param = item->param().toStdWString().c_str();
-    const wchar_t *dir = item->dir().toStdWString().c_str();
+    wchar_t *op = wcsdup(item->op().toStdWString().c_str());
+    wchar_t *file = wcsdup(item->file().toStdWString().c_str());
+    wchar_t *param = wcsdup(item->param().toStdWString().c_str());
+    wchar_t *dir = wcsdup(item->dir().toStdWString().c_str());
     int style = item->style();
     auto result = (uintptr_t) ShellExecuteW(nullptr, op, file, param, dir, style);
     if (result <= 32 && result != SE_ERR_ACCESSDENIED) {

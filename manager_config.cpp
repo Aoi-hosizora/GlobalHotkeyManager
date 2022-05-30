@@ -78,7 +78,7 @@ bool HotkeyItem::readItemsFromRegistry(std::vector<HotkeyItem> *out) {
         }
 
         auto title = QString::fromStdWString(utils::readRegSz(key, L"", L"")).trimmed();
-        auto hotkey = QString::fromStdWString(utils::readRegSz(key, L"Hotkey", L"")).trimmed().replace("Win", "Meta");
+        auto hotkey = QString::fromStdWString(utils::readRegSz(key, L"Hotkey", L"")).trimmed().replace("Win", "Meta", Qt::CaseInsensitive);
         auto op = QString::fromStdWString(utils::readRegSz(key, L"Operation", L"open")).trimmed();
         auto file = QString::fromStdWString(utils::readRegSz(key, L"File", L"")).trimmed().replace("\"", "");
         auto param = QString::fromStdWString(utils::readRegSz(key, L"Parameter", L"")).trimmed();
@@ -86,7 +86,7 @@ bool HotkeyItem::readItemsFromRegistry(std::vector<HotkeyItem> *out) {
         auto style = QString::fromStdWString(utils::readRegSz(key, L"Style", L"SW_NORMAL")).trimmed();
         auto hotkey_ = utils::ensureQKeySequence(QKeySequence::fromString(hotkey));
         auto style_ = utils::parseStyleFromString(style.toStdWString());
-        if (!title.isEmpty() && !hotkey_.isEmpty() && !file.isEmpty()) {
+        if (!title.isEmpty() && !hotkey_.isEmpty() && hotkey_ != 0 && !file.isEmpty()) {
             out->push_back(HotkeyItem(title, hotkey_, op, file, param, dir, style_));
         }
 
