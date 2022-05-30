@@ -5,13 +5,13 @@ Windows Registry Editor Version 5.00
 "Lang"="en"
 
 [HKEY_CURRENT_USER\SOFTWARE\AoiHosizora\GlobalHotkeyManager\01 cmd]
-@="コマンド プロンプト"
+@="Command Prompt"
 "Parameter"="/s /k pushd \"%USERPROFILE%\""
 "Hotkey"="Ctrl+Alt+X"
 "File"="cmd.exe"
 
 [HKEY_CURRENT_USER\SOFTWARE\AoiHosizora\GlobalHotkeyManager\02 cmd admin]
-@="コマンド プロンプト (管理者)"
+@="Command Prompt (Admin)"
 "Operation"="runas"
 "Parameter"="/s /k pushd \"%USERPROFILE%\""
 "Hotkey"="Ctrl+Alt+Z"
@@ -24,7 +24,7 @@ Windows Registry Editor Version 5.00
 "File"="powershell.exe"
 
 [HKEY_CURRENT_USER\SOFTWARE\AoiHosizora\GlobalHotkeyManager\04 ps admin]
-@="Powershell (管理者)"
+@="Powershell (Admin)"
 "Operation"="runas"
 "Parameter"="-noexit -command Set-Location -literalPath \"$env:USERPROFILE\""
 "Hotkey"="Ctrl+Alt+A"

@@ -1,0 +1,5 @@
+Windows Registry Editor Version 5.00
+
+[HKEY_CURRENT_USER\SOFTWARE\AoiHosizora\GlobalHotkeyManager]
+"Hotkey"="Ctrl+Shift+Alt+F12"
+"Lang"="en"
