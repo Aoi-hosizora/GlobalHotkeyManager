@@ -6,7 +6,7 @@
 #include "maindialog.h"
 #include "manager_config.h"
 
-void changeLanguage(QApplication *, ManagerConfig::Language);
+void changeLanguage(ManagerConfig::Language);
 
 int main(int argc, char *argv[]) {
     QApplication a(argc, argv);
@@ -20,23 +20,25 @@ int main(int argc, char *argv[]) {
         return 0;
     }
 
-    changeLanguage(&a, config.lang());
+    changeLanguage(config.lang());
     MainDialog w(&config);
+    w.setWindowOpacity(0);
     w.show();
     w.hide();
+    w.setWindowOpacity(1);
     return a.exec();
 }
 
-void changeLanguage(QApplication *a, ManagerConfig::Language lang) {
+void changeLanguage(ManagerConfig::Language lang) {
     static QTranslator appTranslator, qtTranslator;
     if (lang != ManagerConfig::Language::ENGLISH) {
         QString appQmPath = lang == ManagerConfig::Language::CHINESE ? ":/app_zh_CN.qm" : ":/app_ja_JP.qm";
         QString qtQmPath = lang == ManagerConfig::Language::CHINESE ? ":/qt_zh_CN.qm" : ":/qt_ja_JP.qm";
         if (appTranslator.load(appQmPath)) {
-            a->installTranslator(&appTranslator);
+            QApplication::installTranslator(&appTranslator);
         }
         if (qtTranslator.load(qtQmPath)) {
-            a->installTranslator(&qtTranslator);
+            QApplication::installTranslator(&qtTranslator);
         }
     }
 }

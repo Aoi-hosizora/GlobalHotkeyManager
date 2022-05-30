@@ -26,6 +26,8 @@ std::wstring readRegSz(HKEY, std::wstring, std::wstring);
 int parseStyleFromString(std::wstring);
 std::wstring formatStyleToString(int);
 
+std::wstring getLastErrorAsString();
+
 }  // namespace utils
 
 inline int utils::generateHotkeyId(UINT fsModifiers, UINT vk) {
@@ -358,6 +360,24 @@ inline std::wstring utils::formatStyleToString(int style) {
     default:
         return L"SW_HIDE";
     }
+}
+
+inline std::wstring utils::getLastErrorAsString() {
+    auto err = GetLastError();
+    if (err == 0) {
+        return L"";
+    }
+    wchar_t *buf = nullptr;
+    size_t sze = FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS | FORMAT_MESSAGE_ALLOCATE_BUFFER,
+        nullptr, err, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPWSTR) &buf, 0, nullptr);
+    if (sze == 0) {
+        return std::wstring(L"unknown error (errno = ") + std::to_wstring(err) + L")";
+    }
+
+    auto msg = std::wstring(buf);
+    msg.erase(std::find_if(msg.rbegin(), msg.rend(), [](wchar_t ch) { return !std::isspace(ch); }).base(), msg.end());  // rtrim
+    LocalFree(buf);
+    return msg + L" (errno = " + std::to_wstring(err) + L")";
 }
 
 #endif  // UTILS_HPP

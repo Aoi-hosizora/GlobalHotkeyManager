@@ -38,7 +38,7 @@ bool ManagerConfig::readConfigFromRegistry(ManagerConfig *out) {
 
 QString HotkeyItem::toString() const {
     if (title_ == "" || hotkey_.isEmpty() || file_ == "") {
-        return "<invalid hotkey setting>";
+        return "<invalid hotkey item>";
     }
 
     QStringList l;
@@ -55,7 +55,7 @@ QString HotkeyItem::toString() const {
 
 bool operator==(const HotkeyItem &lhs, const HotkeyItem &rhs) {
     return lhs.title() == rhs.title() && lhs.hotkey() == rhs.hotkey() &&
-           lhs.file() == rhs.file() && lhs.op() == rhs.op() && lhs.param() == rhs.param() && lhs.dir() == rhs.dir() && lhs.style() == rhs.style();
+        lhs.file() == rhs.file() && lhs.op() == rhs.op() && lhs.param() == rhs.param() && lhs.dir() == rhs.dir() && lhs.style() == rhs.style();
 }
 
 bool operator!=(const HotkeyItem &lhs, const HotkeyItem &rhs) {

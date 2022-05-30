@@ -8,12 +8,16 @@
 #include "utils.hpp"
 
 MainDialog::MainDialog(const ManagerConfig *config, QWidget *parent) : QDialog(parent), ui(new Ui::MainDialog), config(config) {
-    setWindowOpacity(0);  // prevent showing window when program startups
     ui->setupUi(this);
-    setWindowFlags(Qt::WindowCloseButtonHint | Qt::WindowStaysOnTopHint);
+    setWindowFlags(Qt::WindowCloseButtonHint | Qt::WindowMinimizeButtonHint | Qt::WindowStaysOnTopHint);
     bindEvents();
-    readConfig();
-    loadItems();
+
+    connect(this, &MainDialog::shownFirstly, this, [this]() {
+        QTimer::singleShot(0, this, [this]() {
+            loadConfig();
+            loadItems();
+        });
+    });
 }
 
 MainDialog::~MainDialog() {
@@ -27,15 +31,18 @@ void MainDialog::bindEvents() {
     connect(ui->btnInvoke, SIGNAL(clicked()), this, SLOT(onBtnInvokeClicked()));
     connect(ui->btnRefresh, SIGNAL(clicked()), this, SLOT(onBtnRefreshClicked()));
     connect(ui->lstHotkeys, SIGNAL(currentRowChanged(int)), this, SLOT(onLstHotkeysCurrentRowChanged(int)));
+}
 
+bool MainDialog::loadConfig() {
     int keyId;
     if (!utils::registerHotkey(winId(), config->hotkey(), &keyId)) {
         QMessageBox::critical(this, TITLE, tr("Failed to register hotkey %0 for showing window, exiting...").arg(config->hotkey().toString()));
         close(true);
-        return;
+        return false;
     }
     ui->lblHint->setText(tr("Tip: You can press %0 to open this window.").arg(config->hotkey().toString()));
     showWindowKeyId = keyId;
+    return true;
 }
 
 bool MainDialog::loadItems(bool force) {
@@ -65,11 +72,11 @@ bool MainDialog::loadItems(bool force) {
         int keyId;
         if (utils::registerHotkey(winId(), item.hotkey(), &keyId)) {
             idToHotkeyItem.insert(std::make_pair(keyId, &item));
-            auto line = item.toString().replace(QRegularExpression("^|$"), "\u2009").replace(QRegularExpression("\n"), "\u2009\n\u2009");  // /u+2009 => Thin Space
+            auto line = item.toString().replace(QRegularExpression("^|$"), "\u2009").replace("\n", "\u2009\n\u2009");  // /u+2009 => Thin Space
             ui->lstHotkeys->addItem(line);
         } else {
             failedItems.push_back(&item);
-            auto line = item.toString().replace(QRegularExpression("^|$"), "\u2009").replace(QRegularExpression("\n"), QString(" %0\u2009\n\u2009").arg(tr("(conflicted)")));
+            auto line = item.toString().replace(QRegularExpression("^|$"), "\u2009").replace("\n", QString(" %0\u2009\n\u2009").arg(tr("(conflicted)")));
             ui->lstHotkeys->addItem(line);
         }
     }
@@ -98,6 +105,15 @@ void MainDialog::close(bool sureToExit) {
     QTimer::singleShot(0, this, [this]() { QDialog::close(); });
 }
 
+void MainDialog::showEvent(QShowEvent *e) {
+    QDialog::showEvent(e);
+    static bool first = true;
+    if (first) {
+        first = false;
+        emit shownFirstly();
+    }
+}
+
 void MainDialog::closeEvent(QCloseEvent *e) {
     enum { EXIT,
         HIDE,
@@ -109,8 +125,8 @@ void MainDialog::closeEvent(QCloseEvent *e) {
         msgBox.setWindowFlags(msgBox.windowFlags() | Qt::WindowStaysOnTopHint);
         msgBox.setIcon(QMessageBox::Question);
         msgBox.setWindowTitle(TITLE);
-        msgBox.setText(
-            QString("%0\n\n%1").arg(tr("Sure to exit Global Hotkey Manager?"), tr("All hotkeys registered will be unregistered and cannot be invoked if you choose to exit.")));
+        msgBox.setText(QString("%0\n\n%1")
+                           .arg(tr("Sure to exit Global Hotkey Manager?"), tr("All hotkeys registered will be unregistered and cannot be invoked if you choose to exit.")));
         auto btnExit = msgBox.addButton(tr("E&xit"), QMessageBox::YesRole);
         auto btnHide = msgBox.addButton(tr("&Hide"), QMessageBox::NoRole);
         msgBox.addButton(QMessageBox::Cancel);
@@ -149,7 +165,6 @@ bool MainDialog::nativeEvent(const QByteArray &eventType, void *message, long *r
     if (msg->message == WM_HOTKEY) {
         int id = (int) msg->wParam;
         if (id == showWindowKeyId) {
-            setWindowOpacity(1);  // restore window's opacity
             show();
             activateWindow();
             return true;
@@ -169,8 +184,9 @@ void MainDialog::invokeItem(const HotkeyItem *item) {
     const wchar_t *dir = item->dir().toStdWString().c_str();
     int style = item->style();
     auto result = (uintptr_t) ShellExecuteW(nullptr, op, file, param, dir, style);
-    if (result <= 32) {
-        QMessageBox::critical(this, TITLE, tr("Failed to execute command of \"%0\" (errno = %1).").arg(item->title(), QString::number(result)));
+    if (result <= 32 && result != SE_ERR_ACCESSDENIED) {
+        auto errMsg = utils::getLastErrorAsString();
+        QMessageBox::critical(this, TITLE, QString("%0\n%1").arg(tr("Failed to execute command of \"%0\":").arg(item->title()), QString::fromStdWString(errMsg)));
     }
 }
 
@@ -186,7 +202,7 @@ void MainDialog::onBtnEditClicked() {
     auto ok = QMessageBox::question(this, TITLE,
         tr("Allow to use regjump tool to edit the hotkeys?"), QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel, QMessageBox::Yes);
     if (ok == QMessageBox::Yes) {
-        ShellExecute(nullptr, L"runas", L"cmd.exe", (L"/C regjump " + ManagerConfig::registryPath().toStdWString()).c_str(), nullptr, SW_HIDE);
+        ShellExecuteW(nullptr, L"runas", L"cmd.exe", (L"/C regjump " + ManagerConfig::registryPath().toStdWString()).c_str(), nullptr, SW_HIDE);
     }
 }
 
@@ -242,7 +258,6 @@ void MainDialog::onLstHotkeysCurrentRowChanged(int index) {
         return;
     }
 
-    // qDebug() << ui->lstHotkeys->item(index)->data(Qt::DisplayRole).toString();
     ui->btnInvoke->setEnabled(true);
     auto item = hotkeyItems.at(index);
 

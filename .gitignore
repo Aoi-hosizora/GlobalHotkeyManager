@@ -8,7 +8,7 @@
 
 ### Project ###
 build/
-x64/
+dist/
 *.user
 Makefile*
 .qmake.stash

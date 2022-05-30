@@ -34,8 +34,8 @@
     <widget class="QListWidget" name="lstHotkeys">
      <property name="styleSheet">
       <string notr="true">QListWidget::item {
-	padding-top: 3px;
-	padding-bottom: 3px;
+	padding-top: 4px;
+	padding-bottom: 4px;
 }
 </string>
      </property>

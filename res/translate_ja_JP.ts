@@ -5,19 +5,19 @@
     <name>MainDialog</name>
     <message>
         <location filename="../maindialog.ui" line="20"/>
-        <location filename="../maindialog.h" line="49"/>
+        <location filename="../maindialog.h" line="55"/>
         <source>Global Hotkey Manager</source>
         <translation>Global Hotkey Manager</translation>
     </message>
     <message>
         <location filename="../maindialog.ui" line="26"/>
-        <location filename="../maindialog.cpp" line="76"/>
+        <location filename="../maindialog.cpp" line="83"/>
         <source>&amp;Global hotkeys: (All %0)</source>
         <translation>グローバル ホットキー(&amp;G): (合計 %0 個)</translation>
     </message>
     <message>
         <location filename="../maindialog.ui" line="56"/>
-        <location filename="../maindialog.cpp" line="261"/>
+        <location filename="../maindialog.cpp" line="276"/>
         <source>Details of &quot;%0&quot;</source>
         <translation>&quot;%0&quot; の詳細情報</translation>
     </message>
@@ -32,11 +32,11 @@
         <location filename="../maindialog.ui" line="111"/>
         <location filename="../maindialog.ui" line="125"/>
         <location filename="../maindialog.ui" line="139"/>
-        <location filename="../maindialog.cpp" line="237"/>
-        <location filename="../maindialog.cpp" line="238"/>
-        <location filename="../maindialog.cpp" line="239"/>
-        <location filename="../maindialog.cpp" line="240"/>
-        <location filename="../maindialog.cpp" line="241"/>
+        <location filename="../maindialog.cpp" line="253"/>
+        <location filename="../maindialog.cpp" line="254"/>
+        <location filename="../maindialog.cpp" line="255"/>
+        <location filename="../maindialog.cpp" line="256"/>
+        <location filename="../maindialog.cpp" line="257"/>
         <source>&lt;unknown&gt;</source>
         <translation>&lt;未知&gt;</translation>
     </message>
@@ -48,12 +48,12 @@
     <message>
         <location filename="../maindialog.ui" line="104"/>
         <source>Parameter:</source>
-        <translation>パラメータ:</translation>
+        <translation>実行パラメータ:</translation>
     </message>
     <message>
         <location filename="../maindialog.ui" line="118"/>
         <source>Directory:</source>
-        <translation>ディレクトリ:</translation>
+        <translation>作業フォルダー:</translation>
     </message>
     <message>
         <location filename="../maindialog.ui" line="132"/>
@@ -77,84 +77,84 @@
     </message>
     <message>
         <location filename="../maindialog.ui" line="196"/>
-        <location filename="../maindialog.cpp" line="37"/>
+        <location filename="../maindialog.cpp" line="43"/>
         <source>Tip: You can press %0 to open this window.</source>
         <translation>ヒント: %0 を押すと、このウィンドウを表示できます。</translation>
     </message>
     <message>
         <location filename="../maindialog.ui" line="221"/>
-        <location filename="../maindialog.cpp" line="115"/>
+        <location filename="../maindialog.cpp" line="131"/>
         <source>&amp;Hide</source>
         <translation>非表示(&amp;H)</translation>
     </message>
     <message>
         <location filename="../maindialog.ui" line="228"/>
-        <location filename="../maindialog.cpp" line="114"/>
+        <location filename="../maindialog.cpp" line="130"/>
         <source>E&amp;xit</source>
         <translation>終了(&amp;X)</translation>
     </message>
     <message>
-        <location filename="../maindialog.cpp" line="33"/>
+        <location filename="../maindialog.cpp" line="39"/>
         <source>Failed to register hotkey %0 for showing window, exiting...</source>
         <translation>ウィンドウを表示するためのホットキー %0 を登録できません、終了します...</translation>
     </message>
     <message>
-        <location filename="../maindialog.cpp" line="46"/>
+        <location filename="../maindialog.cpp" line="53"/>
         <source>Failed to load hotkeys from registry (%0), exiting...</source>
         <translation>レジストリ (%0) からホットキーをロードできません、終了します...</translation>
     </message>
     <message>
-        <location filename="../maindialog.cpp" line="50"/>
+        <location filename="../maindialog.cpp" line="57"/>
         <source>Failed to load hotkeys from registry, ignored.</source>
         <translation>レジストリ (%0) からホットキーをロードできません、スキップしました。</translation>
     </message>
     <message>
-        <location filename="../maindialog.cpp" line="72"/>
+        <location filename="../maindialog.cpp" line="79"/>
         <source>(conflicted)</source>
-        <translation>(占用されました)</translation>
+        <translation>(占用されています)</translation>
     </message>
     <message>
-        <location filename="../maindialog.cpp" line="91"/>
+        <location filename="../maindialog.cpp" line="98"/>
         <source>Warning: Following hotkey(s) are conflicted and cannot be registered. Please check and try to refresh the list.</source>
-        <translation>警告: 下記のホットキーは占用されましたため登録できませんでした、確認してリストを更新してみてください。</translation>
+        <translation>警告: 下記のホットキーは占用されていますため登録できませんでした、確認してリストを更新してください。</translation>
     </message>
     <message>
-        <location filename="../maindialog.cpp" line="113"/>
+        <location filename="../maindialog.cpp" line="129"/>
         <source>Sure to exit Global Hotkey Manager?</source>
         <translation>Global Hotkey Manager を終了しますか？</translation>
     </message>
     <message>
-        <location filename="../maindialog.cpp" line="113"/>
+        <location filename="../maindialog.cpp" line="129"/>
         <source>All hotkeys registered will be unregistered and cannot be invoked if you choose to exit.</source>
         <translation>終了を選択した場合は、登録されているすべてのホットキーは登録解除され、実行することができません。</translation>
     </message>
     <message>
-        <location filename="../maindialog.cpp" line="173"/>
-        <source>Failed to execute command of &quot;%0&quot; (errno = %1).</source>
-        <translation>&quot;%0&quot; のコマンドをじっこうできませんでした (errno = %1)。</translation>
+        <location filename="../maindialog.cpp" line="189"/>
+        <source>Failed to execute command of &quot;%0&quot;:</source>
+        <translation>&quot;%0&quot; のコマンドを実行できませんでした:</translation>
     </message>
     <message>
-        <location filename="../maindialog.cpp" line="187"/>
+        <location filename="../maindialog.cpp" line="203"/>
         <source>Allow to use regjump tool to edit the hotkeys?</source>
         <translation>regjump ツールを使用してホットキーを編集しますか？</translation>
     </message>
     <message>
-        <location filename="../maindialog.cpp" line="226"/>
+        <location filename="../maindialog.cpp" line="242"/>
         <source>Done! Nothing changed.</source>
         <translation>完了しました、構成は変更されていませんでした。</translation>
     </message>
     <message>
-        <location filename="../maindialog.cpp" line="229"/>
+        <location filename="../maindialog.cpp" line="245"/>
         <source>Done! %0 hotkey(s) added, %1 hotkey(s) updated, %2 hotkey(s) deleted.</source>
-        <translation>完了しました。合計 %0 個のホットキーが削除され、%1 個のホットキーが更新され、%2 個のホットキーが削除されました。</translation>
+        <translation>完了しました。合計 %0 個のホットキーが追加され、%1 個のホットキーが更新され、%2 個のホットキーが削除されました。</translation>
     </message>
     <message>
-        <location filename="../maindialog.cpp" line="236"/>
+        <location filename="../maindialog.cpp" line="252"/>
         <source>Details</source>
         <translation>詳細情報</translation>
     </message>
     <message>
-        <location filename="../maindialog.cpp" line="251"/>
+        <location filename="../maindialog.cpp" line="266"/>
         <source>&lt;empty&gt;</source>
         <translation>&lt;未構成&gt;</translation>
     </message>

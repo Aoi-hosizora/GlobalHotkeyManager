@@ -3,6 +3,7 @@
 
 #include <QtGui/QCloseEvent>
 #include <QtGui/QKeyEvent>
+#include <QtGui/QShowEvent>
 #include <QtWidgets/QDialog>
 #include <map>
 #include <qt_windows.h>
@@ -24,9 +25,16 @@ class MainDialog : public QDialog {
     MainDialog(const ManagerConfig *, QWidget *parent = nullptr);
     ~MainDialog();
 
-   private Q_SLOTS:
+   protected:
+    void showEvent(QShowEvent *e) override;
     void closeEvent(QCloseEvent *) override;
     void keyPressEvent(QKeyEvent *) override;
+    bool nativeEvent(const QByteArray &, void *, long *) override;
+
+   signals:
+    void shownFirstly();
+
+   private slots:
     void onBtnHideClicked();
     void onBtnExitClicked();
     void onBtnEditClicked();
@@ -34,11 +42,9 @@ class MainDialog : public QDialog {
     void onBtnRefreshClicked();
     void onLstHotkeysCurrentRowChanged(int);
 
-   protected:
-    bool nativeEvent(const QByteArray &, void *, long *) override;
-
    private:
     void bindEvents();
+    bool loadConfig();
     bool loadItems(bool = true);
     void invokeItem(const HotkeyItem *);
     void close(bool);
