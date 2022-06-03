@@ -3,6 +3,7 @@
 #include <QtCore/QStringList>
 #include <qt_windows.h>
 #include <string>
+#include <unordered_map>
 
 #include "utils.hpp"
 
@@ -10,7 +11,7 @@ QString ManagerConfig::registryPath(bool full) {
     if (full) {
         return "HKEY_CURRENT_USER\\SOFTWARE\\AoiHosizora\\GlobalHotkeyManager";
     }
-    return "SOFTWARE\\AoiHosizora\\GlobalHotkeyManager";
+    return "SOFTWARE\\AoiHosizora\\GlobalHotkeyManager";  // with HKEY_CURRENT_USER
 }
 
 bool ManagerConfig::readConfigFromRegistry(ManagerConfig *out) {
@@ -70,6 +71,7 @@ bool HotkeyItem::readItemsFromRegistry(std::vector<HotkeyItem> *out) {
     }
 
     *out = {};
+    std::unordered_map<QString, bool> usedNames;
     for (auto key_name : key_names) {
         std::wstring key_path = root_path + L"\\" + key_name;
         HKEY key;
@@ -86,7 +88,8 @@ bool HotkeyItem::readItemsFromRegistry(std::vector<HotkeyItem> *out) {
         auto style = QString::fromStdWString(utils::readRegSz(key, L"Style", L"SW_NORMAL")).trimmed();
         auto hotkey_ = utils::ensureQKeySequence(QKeySequence::fromString(hotkey));
         auto style_ = utils::parseStyleFromString(style.toStdWString());
-        if (!title.isEmpty() && !hotkey_.isEmpty() && hotkey_ != 0 && !file.isEmpty()) {
+        if (!title.isEmpty() && usedNames.find(title) == usedNames.end() && !hotkey_.isEmpty() && hotkey_ != 0 && !file.isEmpty()) {
+            usedNames.insert(std::make_pair(title, true));
             out->push_back(HotkeyItem(title, hotkey_, op, file, param, dir, style_));
         }
 

@@ -83,13 +83,13 @@
     </message>
     <message>
         <location filename="../maindialog.ui" line="221"/>
-        <location filename="../maindialog.cpp" line="132"/>
+        <location filename="../maindialog.cpp" line="135"/>
         <source>&amp;Hide</source>
         <translation>非表示(&amp;H)</translation>
     </message>
     <message>
         <location filename="../maindialog.ui" line="228"/>
-        <location filename="../maindialog.cpp" line="131"/>
+        <location filename="../maindialog.cpp" line="134"/>
         <source>E&amp;xit</source>
         <translation>終了(&amp;X)</translation>
     </message>
@@ -105,7 +105,7 @@
     </message>
     <message>
         <location filename="../maindialog.cpp" line="58"/>
-        <source>Failed to load hotkeys from registry, ignored.</source>
+        <source>Failed to load hotkeys from registry (%0), ignored.</source>
         <translation>レジストリ (%0) からホットキーをロードできません、スキップしました。</translation>
     </message>
     <message>
@@ -119,7 +119,7 @@
         <translation>警告: 下記のホットキーは占用されていますため登録できませんでした、確認してリストを更新してください。</translation>
     </message>
     <message>
-        <location filename="../maindialog.cpp" line="130"/>
+        <location filename="../maindialog.cpp" line="129"/>
         <source>Sure to exit Global Hotkey Manager?</source>
         <translation>Global Hotkey Manager を終了しますか？</translation>
     </message>

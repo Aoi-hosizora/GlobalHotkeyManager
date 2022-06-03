@@ -5,7 +5,7 @@
 #include <QtGui/QKeyEvent>
 #include <QtGui/QShowEvent>
 #include <QtWidgets/QDialog>
-#include <map>
+#include <unordered_map>
 #include <qt_windows.h>
 #include <stdint.h>
 #include <vector>
@@ -56,7 +56,7 @@ class MainDialog : public QDialog {
     int showWindowKeyId = 0;
     bool sureToExit = false;
     std::vector<HotkeyItem> hotkeyItems;
-    std::map<int, const HotkeyItem *> idToHotkeyItem;
+    std::unordered_map<int, const HotkeyItem *> idToHotkeyItem;
 };
 
 #endif  // MAINDIALOG_H

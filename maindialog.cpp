@@ -13,7 +13,7 @@ MainDialog::MainDialog(const ManagerConfig *config, QWidget *parent) : QDialog(p
     bindEvents();
 
     connect(this, &MainDialog::shownFirstly, this, [this]() {
-        QTimer::singleShot(0, this, [this]() {
+        QTimer::singleShot(0, this, [this]() {  // non-blocked
             if (loadConfig()) {
                 loadItems();
             }
@@ -47,7 +47,7 @@ bool MainDialog::loadConfig() {
 }
 
 bool MainDialog::loadItems(bool force) {
-    // 1. read hotkeys from registry
+    // 1. try to read hotkeys from registry
     std::vector<HotkeyItem> newItems;
     if (!HotkeyItem::readItemsFromRegistry(&newItems)) {
         if (force) {
@@ -55,7 +55,7 @@ bool MainDialog::loadItems(bool force) {
             close(true);
             return false;
         }
-        QMessageBox::critical(this, TITLE, tr("Failed to load hotkeys from registry, ignored."));
+        QMessageBox::critical(this, TITLE, tr("Failed to load hotkeys from registry (%0), ignored.").arg(ManagerConfig::registryPath()));
         return false;
     }
 
@@ -73,7 +73,7 @@ bool MainDialog::loadItems(bool force) {
         int keyId;
         if (utils::registerHotkey(winId(), item.hotkey(), &keyId)) {
             idToHotkeyItem.insert(std::make_pair(keyId, &item));
-            auto line = item.toString().replace(QRegularExpression("^|$"), "\u2009").replace("\n", "\u2009\n\u2009");  // /u+2009 => Thin Space
+            auto line = item.toString().replace(QRegularExpression("^|$"), "\u2009").replace("\n", "\u2009\n\u2009");  // \u2009 => Thin Space
             ui->lstHotkeys->addItem(line);
         } else {
             failedItems.push_back(&item);
@@ -116,9 +116,9 @@ void MainDialog::showEvent(QShowEvent *e) {
 }
 
 void MainDialog::closeEvent(QCloseEvent *e) {
-    enum { EXIT,
-        HIDE,
-        CANCEL } action;
+    enum Action { EXIT = QMessageBox::Yes,
+        HIDE = QMessageBox::No,
+        CANCEL = QMessageBox::Cancel } action;
     if (sureToExit) {
         action = EXIT;
     } else {
@@ -126,14 +126,14 @@ void MainDialog::closeEvent(QCloseEvent *e) {
         msgBox.setWindowFlags(msgBox.windowFlags() | Qt::WindowStaysOnTopHint);
         msgBox.setIcon(QMessageBox::Question);
         msgBox.setWindowTitle(TITLE);
-        msgBox.setText(QString("%0\n\n%1")
-                           .arg(tr("Sure to exit Global Hotkey Manager?"), tr("All hotkeys registered will be unregistered and cannot be invoked if you choose to exit.")));
-        auto btnExit = msgBox.addButton(tr("E&xit"), QMessageBox::YesRole);
-        auto btnHide = msgBox.addButton(tr("&Hide"), QMessageBox::NoRole);
-        msgBox.addButton(QMessageBox::Cancel);
-        msgBox.setDefaultButton(btnHide);
-        msgBox.exec();
-        action = msgBox.clickedButton() == btnExit ? EXIT : (msgBox.clickedButton() == btnHide ? HIDE : CANCEL);
+        msgBox.setText(tr("Sure to exit Global Hotkey Manager?"));
+        msgBox.setInformativeText(tr("All hotkeys registered will be unregistered and cannot be invoked if you choose to exit."));
+        msgBox.setStyleSheet("QLabel#qt_msgbox_label { color: rgb(0, 51, 153); font-size: 16px; }");
+        msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
+        msgBox.setDefaultButton(QMessageBox::No);
+        msgBox.button(QMessageBox::Yes)->setText(tr("E&xit"));
+        msgBox.button(QMessageBox::No)->setText(tr("&Hide"));
+        action = (Action) msgBox.exec();
     }
 
     if (action == EXIT) {
@@ -142,7 +142,7 @@ void MainDialog::closeEvent(QCloseEvent *e) {
         }
         utils::unregisterHotkey(winId(), config->hotkey());
         e->accept();
-        qApp->quit();
+        qApp->quit();  // <<< for setQuitOnLastWindowClosed
     } else {
         if (action == HIDE) {
             hide();
@@ -217,7 +217,7 @@ void MainDialog::onBtnInvokeClicked() {
 }
 
 void MainDialog::onBtnRefreshClicked() {
-    std::map<QString, HotkeyItem> oldItems;
+    std::unordered_map<QString, HotkeyItem> oldItems;
     for (auto &item : hotkeyItems) {
         oldItems.insert(std::make_pair(item.title(), item));
     }

@@ -83,13 +83,13 @@
     </message>
     <message>
         <location filename="../maindialog.ui" line="221"/>
-        <location filename="../maindialog.cpp" line="132"/>
+        <location filename="../maindialog.cpp" line="135"/>
         <source>&amp;Hide</source>
         <translation>隐藏(&amp;H)</translation>
     </message>
     <message>
         <location filename="../maindialog.ui" line="228"/>
-        <location filename="../maindialog.cpp" line="131"/>
+        <location filename="../maindialog.cpp" line="134"/>
         <source>E&amp;xit</source>
         <translation>退出(&amp;X)</translation>
     </message>
@@ -105,7 +105,7 @@
     </message>
     <message>
         <location filename="../maindialog.cpp" line="58"/>
-        <source>Failed to load hotkeys from registry, ignored.</source>
+        <source>Failed to load hotkeys from registry (%0), ignored.</source>
         <translation>无法从注册表 (%0) 载入热键，请求已忽略。</translation>
     </message>
     <message>
@@ -119,7 +119,7 @@
         <translation>警告：以下热键被占用，无法注册，请检查并尝试刷新列表。</translation>
     </message>
     <message>
-        <location filename="../maindialog.cpp" line="130"/>
+        <location filename="../maindialog.cpp" line="129"/>
         <source>Sure to exit Global Hotkey Manager?</source>
         <translation>确定要退出 Global Hotkey Manager 吗？</translation>
     </message>
