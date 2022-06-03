@@ -55,8 +55,8 @@ QString HotkeyItem::toString() const {
 }
 
 bool operator==(const HotkeyItem &lhs, const HotkeyItem &rhs) {
-    return lhs.title() == rhs.title() && lhs.hotkey() == rhs.hotkey() &&
-        lhs.file() == rhs.file() && lhs.op() == rhs.op() && lhs.param() == rhs.param() && lhs.dir() == rhs.dir() && lhs.style() == rhs.style();
+    return lhs.title_ == rhs.title_ && lhs.hotkey_ == rhs.hotkey_ &&
+        lhs.file_ == rhs.file_ && lhs.op_ == rhs.op_ && lhs.param_ == rhs.param_ && lhs.dir_ == rhs.dir_ && lhs.style_ == rhs.style_;
 }
 
 bool operator!=(const HotkeyItem &lhs, const HotkeyItem &rhs) {

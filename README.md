@@ -1,6 +1,6 @@
 # GlobalHotkeyManager
 
-+ A background tool built by Qt used to manage global hotkeys in Windows.
++ A Windows background tool built by Qt used to manage global hotkeys.
 
 ### Environment
 
@@ -74,7 +74,7 @@ windeployqt dist/GlobalHotkeyManager.exe
 
 ### Configure
 
-+ Configures are saved in registry `HKEY_CURRENT_USER\SOFTWARE\AoiHosizora\GlobalHotkeyManager`, which is almost the same as [Aoi-hosizora/OpenWithMenu](https://github.com/Aoi-hosizora/OpenWithMenu#configure).
++ Configurations are saved in registry `HKEY_CURRENT_USER\SOFTWARE\AoiHosizora\GlobalHotkeyManager`, which is almost the same as [Aoi-hosizora/OpenWithMenu](https://github.com/Aoi-hosizora/OpenWithMenu#configure).
 + Note that you need to make sure that `regjump.exe` can be found in `PATH`, which is used for registry redirecting. Please visit https://docs.microsoft.com/en-us/sysinternals/downloads/regjump for details.
 
 ```reg
@@ -101,7 +101,7 @@ windeployqt dist/GlobalHotkeyManager.exe
 #### Root key
 
 + `Hotkey` - Hotkey to open the config dialog, defaults to `Ctrl+Shift+Alt+F12`
-+ `Lang` - Language, available items: `en` or `en_us`, `zh` or `zh_cn`, `ja` or `ja_jp`, defaults to `en`
++ `Lang` - Language, defaults to `en`, available items: `en` or `en_us`, `zh` or `zh_cn`, `ja` or `ja_jp`
 
 #### Sub key
 
@@ -109,7 +109,7 @@ windeployqt dist/GlobalHotkeyManager.exe
 + `@` - Hotkey title, **required**
 + `File` - Executable file path, **required**
 + `Hotkey` - Hotkey for executable file, **required**
-    + Some examples: `F10` / `Shift+Esc` / `Ctrl+Alt+0` / `Ctrl+Shift+Alt+Z` / `Ctrl+Win+Insert` / ...
+    + Some examples: `F10` / `Shift+Esc` / `Ctrl+Alt+0` / `Ctrl+Shift+Alt+Z` / `Ctrl+Win+Insert`
 + `Operation` - Execute operation, defaults to `open`, it can be set to `runas` to execute as administrator
 + `Parameter` - Execute parameter, optional
     + Command prompt example: `/s /k pushd "%USERPROFILE%"`
