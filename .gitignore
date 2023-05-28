@@ -9,6 +9,7 @@
 ### Project ###
 build/
 dist/
+*.rar
 *.user
 Makefile*
 .qmake.stash

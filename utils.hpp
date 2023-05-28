@@ -113,7 +113,7 @@ inline UINT utils::qKeyCodeToNative(Qt::Key key) {
     case Qt::Key_Pause:
         return VK_PAUSE;
     case Qt::Key_Print:
-        return VK_PRINT;
+        return VK_SNAPSHOT; // VK_PRINT
     case Qt::Key_Clear:
         return VK_CLEAR;
     case Qt::Key_Home:
